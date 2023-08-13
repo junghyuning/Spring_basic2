@@ -42,9 +42,10 @@ public class UserDaoImpl implements UserDao {
         try (
                 Connection conn = ds.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery(); //  select
+
         ){
             pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery(); //  select
 
             if (rs.next()) {
                 user = new User();
@@ -60,7 +61,6 @@ public class UserDaoImpl implements UserDao {
 
         return user;
     }
-
     // 사용자 정보를 user_info테이블에 저장하는 메서드
     @Override
     public int insertUser(User user) throws Exception {

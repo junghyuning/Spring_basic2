@@ -39,20 +39,20 @@
 
     <!--전체 글 목록 검색 - 등록일 및 글번호를 내림차순으로 정렬 -->
     <select id="selectAll" resultType="BoardDto">
-        SELECT bno, title, content, writer, view_cnt, comment_cnt, reg_date
+        SELECT bno, title, content, writer, viewcnt, commentcnt, regdate
         FROM board
-        ORDER BY reg_date DESC, bno DESC
+        ORDER BY regdate DESC
     </select>
 
     <!-- 전체 글 목록 검색  -->
     <sql id="selectFromBoard">
-        SELECT bno, title, content, writer, view_cnt, comment_cnt, reg_date
+        SELECT bno, title, content, writer, viewcnt, commentcnt, regdate
         FROM board
     </sql>
 
 <!--  글번호로 검색  -->
     <select id="select" parameterType="int" resultType="BoardDto">
-        SELECT bno, title, content, writer, view_cnt, comment_cnt, reg_date
+        SELECT bno, title, content, writer, viewcnt, commentcnt, regdate
         FROM board
         WHERE bno = #{bno}
     </select>
@@ -61,29 +61,49 @@
     <select id="selectPage" parameterType="map" resultType="BoardDto">
         SELECT * FROM (
             SELECT ROWNUM NUM, B.* FROM (
-                SELECT * FROM BOARD ORDER BY REG_DATE DESC
+                SELECT * FROM BOARD ORDER BY REGDATE DESC
                 ) B
             )
-        WHERE BETWEEN #{pageStart} AND #{pageEnd}
+        WHERE NUM BETWEEN #{pageStart} AND #{pageEnd}
+    </select>
+
+    <!--검색 결과에 대한 페이징 -->
+    <select id="searchSelectPage" parameterType="SearchCondition" resultType="BoardDto">
+        SELECT * FROM (
+            SELECT ROWNUM NUM, B.* FROM (
+                SELECT * FROM BOARD WHERE TITLE LIKE '%'||#{keyword}||'%' ORDER BY REGDATE DESC
+                ) B
+            )
+        WHERE NUM BETWEEN #{pageStart} AND #{pageEnd}
+    </select>
+
+
+    <select id="searchResultCnt" parameterType="SearchCondition" resultType="BoardDto">
+        SELECT * FROM (
+            SELECT ROWNUM NUM, B.* FROM (
+                SELECT * FROM BOARD WHERE TITLE LIKE '%'||#{keyword}||'%' ORDER BY REGDATE DESC
+                ) B
+            )
+        WHERE NUM BETWEEN #{pageStart} AND #{pageEnd}
     </select>
 
     <update id="update" parameterType="BoardDto">
         UPDATE board
         SET title   = #{title}
           , content = #{content}
-          , up_date = sysdate
+          , updatedate = sysdate
         WHERE bno = #{bno}
     </update>
 
     <update id="updateCommentCnt" parameterType="map">
         UPDATE board
-        SET comment_cnt = comment_cnt + #{cnt}
+        SET commentcnt = commentcnt + #{cnt}
         WHERE bno = #{bno}
     </update>
 
     <update id="increaseViewCnt" parameterType="int">
         UPDATE board
-        SET view_cnt = view_cnt + 1
+        SET viewcnt = viewcnt + 1
         WHERE bno = #{bno}
     </update>
 

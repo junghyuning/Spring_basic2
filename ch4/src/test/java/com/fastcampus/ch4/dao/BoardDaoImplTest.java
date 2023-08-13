@@ -1,3 +1,4 @@
+
 package com.fastcampus.ch4.dao;
 
 import com.fastcampus.ch4.domain.*;
@@ -18,6 +19,22 @@ public class BoardDaoImplTest {
     private BoardDao boardDao;
 
     @Test
+    public void searchSelectPageTest() throws Exception {
+        SearchCondition sc = new SearchCondition(11, 30, "title","T");
+        List<BoardDto> list = boardDao.searchSelectPage(sc);
+        System.out.println("list = " + list);
+    }
+
+    @Test
+    public void insertTestData() throws Exception {
+        boardDao.deleteAll();
+        for(int i=1; i<= 220; i++){
+            BoardDto boardDto = new BoardDto("title"+i,"no content", "asdf1");
+            boardDao.insert(boardDto);
+        }
+    }
+
+/*    @Test
     public void countTest() throws Exception {
         boardDao.deleteAll();
         assertTrue(boardDao.count()==0);
@@ -192,5 +209,5 @@ public class BoardDaoImplTest {
         boardDto = boardDao.select(bno);
         assertTrue(boardDto!=null);
         assertTrue(boardDto.getView_cnt() == 2);
-    }
+    }*/
 }

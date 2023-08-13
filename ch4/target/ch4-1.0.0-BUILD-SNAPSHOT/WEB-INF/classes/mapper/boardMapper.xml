@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fastcampus.ch4.dao.BoardMapper">
+    <!--총 게시글 갯수-->
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM board
+    </select>
+
+    <!--전체 게시글 삭제-->
+    <delete id="deleteAll">
+        DELETE
+        FROM board
+    </delete>
+
+    <!-- 관리자 권한이 있는자의 삭제 : 조건없이 모든 글 삭제 가능   -->
+    <delete id="deleteForAdming" parameterType="map">
+        DELETE
+        FROM board
+        WHERE bno = #{bno}
+    </delete>
+
+    <!--자신이 게시한 게시글 삭제-->
+    <delete id="delete" parameterType="map">
+        DELETE
+        FROM board
+        WHERE bno = #{bno}
+          and writer = #{writer}
+    </delete>
+
+    <!--게시글 입력-->
+    <insert id="insert" parameterType="BoardDto">
+        INSERT INTO board
+            (bno, title, content, writer)
+        VALUES (board_seq.nextval, #{title}, #{content}, #{writer})
+    </insert>
+
+    <!--전체 글 목록 검색 - 등록일 및 글번호를 내림차순으로 정렬 -->
+    <select id="selectAll" resultType="BoardDto">
+        SELECT bno, title, content, writer, viewcnt, commentcnt, regdate
+        FROM board
+        ORDER BY regdate DESC, bno DESC
+    </select>
+
+    <!-- 전체 글 목록 검색  -->
+    <sql id="selectFromBoard">
+        SELECT bno, title, content, writer, viewcnt, commentcnt, regdate
+        FROM board
+    </sql>
+
+<!--  글번호로 검색  -->
+    <select id="select" parameterType="int" resultType="BoardDto">
+        SELECT bno, title, content, writer, viewcnt, commentcnt, regdate
+        FROM board
+        WHERE bno = #{bno}
+    </select>
+
+<!-- 페이징 - 한페이지에 출력될 글의 목록 -->
+    <select id="selectPage" parameterType="map" resultType="BoardDto">
+        SELECT * FROM (
+            SELECT ROWNUM NUM, B.* FROM (
+                SELECT * FROM BOARD ORDER BY REGDATE DESC
+                ) B
+            )
+        WHERE NUM BETWEEN #{pageStart} AND #{pageEnd}
+    </select>
+
+    <update id="update" parameterType="BoardDto">
+        UPDATE board
+        SET title   = #{title}
+          , content = #{content}
+          , updatedate = sysdate
+        WHERE bno = #{bno}
+    </update>
+
+    <update id="updateCommentCnt" parameterType="map">
+        UPDATE board
+        SET commentcnt = commentcnt + #{cnt}
+        WHERE bno = #{bno}
+    </update>
+
+    <update id="increaseViewCnt" parameterType="int">
+        UPDATE board
+        SET viewcnt = viewcnt + 1
+        WHERE bno = #{bno}
+    </update>
+
+
+</mapper>
